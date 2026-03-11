@@ -118,6 +118,7 @@ const Login = () => {
         </motion.div>
 
         {/* Role Selector */}
+        {/* Role Selector commented out as per user request to default to Super Admin
         <div className="grid grid-cols-4 gap-2 mb-6">
           {roles.map((r) => (
             <button
@@ -133,6 +134,7 @@ const Login = () => {
             </button>
           ))}
         </div>
+        */}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>

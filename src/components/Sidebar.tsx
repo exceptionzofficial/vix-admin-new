@@ -23,10 +23,10 @@ const allMenuItems = [
   { icon: DollarSign, label: "Expenses", path: "/expenses", roles: ["admin", "manager", "employee"] },
   { icon: FileText, label: "Finance", path: "/finance", roles: ["admin", "manager"] },
   { icon: Trophy, label: "Incentives", path: "/incentives", roles: ["admin", "manager", "employee"] },
-  { icon: Phone, label: "Telecalling", path: "/telecalling", roles: ["admin", "manager", "employee"] },
+  // { icon: Phone, label: "Telecalling", path: "/telecalling", roles: ["admin", "manager", "employee"] },
   { icon: MapPin, label: "Live Map", path: "/live-map", roles: ["admin", "manager"] },
-  { icon: Car, label: "Parking", path: "/parking", roles: ["admin", "manager"] },
-  { icon: MessageSquare, label: "Chat", path: "/chat", roles: ["admin", "manager", "employee", "vendor"] },
+  // { icon: Car, label: "Parking", path: "/parking", roles: ["admin", "manager"] },
+  // { icon: MessageSquare, label: "Chat", path: "/chat", roles: ["admin", "manager", "employee", "vendor"] },
   { icon: Settings, label: "Settings", path: "/settings", roles: ["admin"] },
 ];
 

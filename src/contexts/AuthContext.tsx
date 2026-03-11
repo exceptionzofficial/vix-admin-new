@@ -30,9 +30,9 @@ const roleNames: Record<UserRole, string> = {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [auth, setAuth] = useState<AuthState>({
-    isAuthenticated: false,
+    isAuthenticated: true,
     role: "admin",
-    userName: "",
+    userName: "Super Admin",
   });
 
   const login = (role: UserRole) => {
