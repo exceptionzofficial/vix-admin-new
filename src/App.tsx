@@ -23,6 +23,7 @@ import Payroll from "./pages/Payroll";
 import Incentives from "./pages/Incentives";
 import UpcomingProjects from "./pages/UpcomingProjects";
 import EmployeePortal from "./pages/EmployeePortal";
+import ComingSoon from "./pages/ComingSoon";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,25 +36,27 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<Navigate to="/attendance" replace />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<ComingSoon />} />
             <Route path="/attendance" element={<Attendance />} />
-            <Route path="/payroll" element={<Payroll />} />
             <Route path="/employees" element={<Employees />} />
             <Route path="/geofence" element={<Geofence />} />
-            <Route path="/events" element={<Events />} />
-            <Route path="/vendors" element={<Vendors />} />
-            <Route path="/tasks" element={<Tasks />} />
-            <Route path="/projects" element={<UpcomingProjects />} />
-            <Route path="/telecalling" element={<Telecalling />} />
-            <Route path="/live-map" element={<LiveMap />} />
-            <Route path="/parking" element={<Parking />} />
-            <Route path="/expenses" element={<Expenses />} />
-            <Route path="/finance" element={<Finance />} />
-            <Route path="/incentives" element={<Incentives />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/settings" element={<SettingsPage />} />
+            
+            {/* All other routes redirected to Coming Soon */}
+            <Route path="/payroll" element={<ComingSoon />} />
+            <Route path="/events" element={<ComingSoon />} />
+            <Route path="/vendors" element={<ComingSoon />} />
+            <Route path="/tasks" element={<ComingSoon />} />
+            <Route path="/projects" element={<ComingSoon />} />
+            <Route path="/telecalling" element={<ComingSoon />} />
+            <Route path="/live-map" element={<ComingSoon />} />
+            <Route path="/parking" element={<ComingSoon />} />
+            <Route path="/expenses" element={<ComingSoon />} />
+            <Route path="/finance" element={<ComingSoon />} />
+            <Route path="/incentives" element={<ComingSoon />} />
+            <Route path="/chat" element={<ComingSoon />} />
+            <Route path="/settings" element={<ComingSoon />} />
             <Route path="/employee-portal" element={<EmployeePortal />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

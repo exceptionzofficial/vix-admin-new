@@ -11,23 +11,23 @@ import { useAuth, UserRole } from "@/contexts/AuthContext";
 import crayonzLogo from "@/assets/crayonz-logo.png";
 
 const allMenuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", roles: ["admin", "manager", "employee", "vendor"] },
-  { icon: Clock, label: "Attendance", path: "/attendance", roles: ["admin", "manager", "employee"] },
-  { icon: IndianRupee, label: "Payroll", path: "/payroll", roles: ["admin", "manager", "employee"] },
-  { icon: Users, label: "Employees", path: "/employees", roles: ["admin", "manager"] },
-  { icon: Map, label: "Geofence", path: "/geofence", roles: ["admin", "manager"] },
-  { icon: Calendar, label: "Events", path: "/events", roles: ["admin", "manager", "employee"] },
-  { icon: ClipboardList, label: "Tasks", path: "/tasks", roles: ["admin", "manager", "employee"] },
-  { icon: Rocket, label: "Projects", path: "/projects", roles: ["admin", "manager"] },
-  { icon: Store, label: "Vendors", path: "/vendors", roles: ["admin", "manager", "vendor"] },
-  { icon: DollarSign, label: "Expenses", path: "/expenses", roles: ["admin", "manager", "employee"] },
-  { icon: FileText, label: "Finance", path: "/finance", roles: ["admin", "manager"] },
-  { icon: Trophy, label: "Incentives", path: "/incentives", roles: ["admin", "manager", "employee"] },
-  // { icon: Phone, label: "Telecalling", path: "/telecalling", roles: ["admin", "manager", "employee"] },
-  { icon: MapPin, label: "Live Map", path: "/live-map", roles: ["admin", "manager"] },
-  // { icon: Car, label: "Parking", path: "/parking", roles: ["admin", "manager"] },
-  // { icon: MessageSquare, label: "Chat", path: "/chat", roles: ["admin", "manager", "employee", "vendor"] },
-  { icon: Settings, label: "Settings", path: "/settings", roles: ["admin"] },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", roles: ["admin", "manager", "employee", "vendor"], isLive: false },
+  { icon: Clock, label: "Attendance", path: "/attendance", roles: ["admin", "manager", "employee"], isLive: true },
+  { icon: IndianRupee, label: "Payroll", path: "/payroll", roles: ["admin", "manager", "employee"], isLive: false },
+  { icon: Users, label: "Employees", path: "/employees", roles: ["admin", "manager"], isLive: true },
+  { icon: Map, label: "Geofence", path: "/geofence", roles: ["admin", "manager"], isLive: true },
+  { icon: Calendar, label: "Events", path: "/events", roles: ["admin", "manager", "employee"], isLive: false },
+  { icon: ClipboardList, label: "Tasks", path: "/tasks", roles: ["admin", "manager", "employee"], isLive: false },
+  { icon: Rocket, label: "Projects", path: "/projects", roles: ["admin", "manager"], isLive: false },
+  { icon: Store, label: "Vendors", path: "/vendors", roles: ["admin", "manager", "vendor"], isLive: false },
+  { icon: DollarSign, label: "Expenses", path: "/expenses", roles: ["admin", "manager", "employee"], isLive: false },
+  { icon: FileText, label: "Finance", path: "/finance", roles: ["admin", "manager"], isLive: false },
+  { icon: Trophy, label: "Incentives", path: "/incentives", roles: ["admin", "manager", "employee"], isLive: false },
+  { icon: Phone, label: "Telecalling", path: "/telecalling", roles: ["admin", "manager", "employee"], isLive: false },
+  { icon: MapPin, label: "Live Map", path: "/live-map", roles: ["admin", "manager"], isLive: false },
+  { icon: Car, label: "Parking", path: "/parking", roles: ["admin", "manager"], isLive: false },
+  { icon: MessageSquare, label: "Chat", path: "/chat", roles: ["admin", "manager", "employee", "vendor"], isLive: false },
+  { icon: Settings, label: "Settings", path: "/settings", roles: ["admin"], isLive: false },
 ];
 
 const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
@@ -85,14 +85,21 @@ const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
                 <item.icon className="w-5 h-5 shrink-0" />
                 <AnimatePresence>
                   {!collapsed && (
-                    <motion.span
+                    <motion.div
+                      className="flex-1 flex items-center justify-between min-w-0"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="text-sm font-medium whitespace-nowrap"
                     >
-                      {item.label}
-                    </motion.span>
+                      <span className="text-sm font-medium truncate">
+                        {item.label}
+                      </span>
+                      {!item.isLive && (
+                        <span className="text-[10px] bg-muted/50 text-muted-foreground px-1.5 py-0.5 rounded-md font-bold uppercase tracking-tighter">
+                          Soon
+                        </span>
+                      )}
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </motion.div>
