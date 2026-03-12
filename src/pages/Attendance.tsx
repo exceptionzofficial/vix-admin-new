@@ -11,13 +11,14 @@ const API_BASE_URL = API_CONFIG.API_BASE;
 
 type AttendanceRecord = {
   employeeId: string;
+  timestamp: number;
   name?: string;
   employee?: string;
   avatar?: string;
   date: string;
   time: string;
-  checkIn?: string;
-  checkOut?: string;
+  checkInTime?: string;
+  checkOutTime?: string;
   status: string;
   method: string;
   location: any;
@@ -267,27 +268,56 @@ const Attendance = () => {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
              </div>
         ) : isAdmin && (
-          <div className="space-y-2">
+          <div className="space-y-3">
+            <div className="hidden md:grid grid-cols-6 gap-4 px-6 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              <div className="col-span-2">Employee</div>
+              <div>Date</div>
+              <div>Check-in</div>
+              <div>Check-out</div>
+              <div>Status</div>
+            </div>
             {filtered.map((r, i) => (
-              <motion.div key={r.employeeId + r.time} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}
-                className="glass-card-hover p-4 flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0">
-                  {r.avatar}
+              <motion.div key={r.employeeId + r.timestamp} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}
+                className="glass-card-hover p-4 flex flex-col md:grid md:grid-cols-6 items-center gap-4">
+                <div className="col-span-2 flex items-center gap-4 w-full md:w-auto">
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                    {r.avatar}
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-medium text-sm">{r.employee}</h3>
+                    <p className="text-[10px] text-muted-foreground truncate">{r.location}</p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-sm">{r.employee}</h3>
-                  <p className="text-xs text-muted-foreground shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">{r.location}</p>
+
+                <div className="flex md:block items-center justify-between w-full md:w-auto">
+                  <span className="md:hidden text-xs text-muted-foreground">Date:</span>
+                  <p className="text-sm font-medium">{r.date}</p>
                 </div>
-                <div className="text-center hidden md:block">
-                  <p className="text-xs text-muted-foreground">Check-in</p>
-                  <p className="text-sm font-medium">{r.checkIn}</p>
+
+                <div className="flex md:block items-center justify-between w-full md:w-auto">
+                  <span className="md:hidden text-xs text-muted-foreground">Check-in:</span>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                    <p className="text-sm font-bold text-green-500">{r.checkInTime || r.time || "N/A"}</p>
+                  </div>
                 </div>
-                <div className="text-center hidden lg:block">
-                  <p className="text-xs text-muted-foreground">Status</p>
-                  <p className="text-sm font-medium gradient-text">{r.status}</p>
+
+                <div className="flex md:block items-center justify-between w-full md:w-auto">
+                  <span className="md:hidden text-xs text-muted-foreground">Check-out:</span>
+                  {r.checkOutTime ? (
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
+                      <p className="text-sm font-bold text-orange-500">{r.checkOutTime}</p>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground italic">Ongoing</span>
+                  )}
                 </div>
-                <span className="text-[10px] px-2 py-1 rounded-lg bg-muted/50 text-muted-foreground hidden md:inline">{r.method}</span>
-                <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${statusColors[r.status] || "bg-muted text-white"}`}>{r.status}</span>
+
+                <div className="flex md:block items-center justify-between w-full md:w-auto">
+                  <span className="md:hidden text-xs text-muted-foreground">Status:</span>
+                  <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide ${statusColors[r.status] || "bg-muted text-white"}`}>{r.status}</span>
+                </div>
               </motion.div>
             ))}
             {filtered.length === 0 && <p className="text-center py-10 text-muted-foreground">No logs found for today.</p>}

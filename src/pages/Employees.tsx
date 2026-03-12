@@ -18,6 +18,10 @@ const Employees = () => {
   const [employeeLogs, setEmployeeLogs] = useState<any[]>([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [isEditing, setIsEditing] = useState(false);
+  const [showOtherDept, setShowOtherDept] = useState(false);
+  
+  const defaultDepts = ["Sales", "Marketing", "Creative", "Event Execution", "HR & Finance", "Internal Shoot Team", "Programming", "OAP Edittor", "OAP Designer"];
+  const allDepts = Array.from(new Set([...defaultDepts, ...employees.map(e => e.department || e.dept).filter(Boolean)]));
   
   const [form, setForm] = useState({ 
     employeeId: "", 
@@ -72,6 +76,7 @@ const Employees = () => {
       location: emp.location || "",
       phone: emp.phone || ""
     });
+    setShowOtherDept(false);
     setIsEditing(true);
     setViewingEmployee(null);
     setShowModal(true);
@@ -124,6 +129,7 @@ const Employees = () => {
       
       setShowModal(false);
       setIsEditing(false);
+      setShowOtherDept(false);
       setForm({ employeeId: "", pin: "", name: "", email: "", dept: "", designation: "", location: "", phone: "" });
       fetchEmployees();
     } catch (error) {
@@ -140,7 +146,7 @@ const Employees = () => {
             <h1 className="text-2xl font-montserrat font-bold">Employees</h1>
             <p className="text-muted-foreground text-sm">{employees.length} team members</p>
           </div>
-          <button onClick={() => { setIsEditing(false); setForm({ employeeId: "", pin: "", name: "", email: "", dept: "", designation: "", location: "", phone: "" }); setShowModal(true); }} className="btn-gradient px-5 py-2.5 flex items-center gap-2 text-sm">
+          <button onClick={() => { setIsEditing(false); setShowOtherDept(false); setForm({ employeeId: "", pin: "", name: "", email: "", dept: "", designation: "", location: "", phone: "" }); setShowModal(true); }} className="btn-gradient px-5 py-2.5 flex items-center gap-2 text-sm">
             <Plus className="w-4 h-4" /> Add Employee
           </button>
         </div>
@@ -199,7 +205,7 @@ const Employees = () => {
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="glass-card p-4 sm:p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-montserrat font-bold">{isEditing ? "Edit Employee" : "Add Employee"}</h2>
-                <button onClick={() => { setShowModal(false); setIsEditing(false); }} className="p-2 rounded-xl hover:bg-muted/50"><X className="w-5 h-5" /></button>
+                <button onClick={() => { setShowModal(false); setIsEditing(false); setShowOtherDept(false); }} className="p-2 rounded-xl hover:bg-muted/50"><X className="w-5 h-5" /></button>
               </div>
               <div className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
                 <div className="grid grid-cols-2 gap-4">
@@ -227,18 +233,30 @@ const Employees = () => {
                   <div>
                     <label className="text-sm text-muted-foreground mb-1 block">Department</label>
                     <select 
-                      value={form.dept} 
-                      onChange={e => setForm(f => ({ ...f, dept: e.target.value }))} 
-                      className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none cursor-pointer"
+                      value={showOtherDept ? "Other" : form.dept} 
+                      onChange={e => {
+                        if (e.target.value === "Other") {
+                          setShowOtherDept(true);
+                          setForm(f => ({ ...f, dept: "" }));
+                        } else {
+                          setShowOtherDept(false);
+                          setForm(f => ({ ...f, dept: e.target.value }));
+                        }
+                      }} 
+                      className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer mb-2"
                     >
                       <option value="">Select Department</option>
-                      <option value="Sales">Sales</option>
-                      <option value="Marketing">Marketing</option>
-                      <option value="Creative">Creative</option>
-                      <option value="Event Execution">Event Execution</option>
-                      <option value="HR & Finance">HR & Finance</option>
-                      <option value="Internal Shoot Team">Internal Shoot Team</option>
+                      {allDepts.map(d => <option key={d} value={d}>{d}</option>)}
+                      <option value="Other" className="text-primary font-bold">+ New Department</option>
                     </select>
+                    {showOtherDept && (
+                      <input 
+                        value={form.dept}
+                        onChange={e => setForm(f => ({ ...f, dept: e.target.value }))}
+                        placeholder="Type department name..."
+                        className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      />
+                    )}
                   </div>
                   <div><label className="text-sm text-muted-foreground mb-1 block">Designation</label>
                     <input value={form.designation} onChange={e => setForm(f => ({ ...f, designation: e.target.value }))} placeholder="Field Executive" className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" /></div>
