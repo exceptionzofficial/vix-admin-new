@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "../components/DashboardLayout";
-import { Camera, MapPin, Clock, CheckCircle2, XCircle, Users, Filter, Search, Calendar } from "lucide-react";
+import { Camera, MapPin, Clock, CheckCircle2, XCircle, Users, Filter, Search, Calendar, Download, FileText } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import axios from "axios";
@@ -19,6 +19,8 @@ type AttendanceRecord = {
   time: string;
   checkInTime?: string;
   checkOutTime?: string;
+  geofence?: string;
+  checkoutGeofence?: string;
   status: string;
   method: string;
   location: any;
@@ -84,6 +86,57 @@ const Attendance = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const downloadReport = (period: 'month' | 'year') => {
+    const now = new Date();
+    // Use Asia/Kolkata for today's month/year
+    const indiaTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+    const currentMonth = indiaTime.getMonth() + 1;
+    const currentYear = indiaTime.getFullYear();
+
+    const reportData = attendanceData.filter(r => {
+      if (!r.date) return false;
+      const parts = r.date.split('-');
+      if (parts.length !== 3) return false;
+      const year = parseInt(parts[0]);
+      const month = parseInt(parts[1]);
+      
+      if (period === 'month') {
+        return month === currentMonth && year === currentYear;
+      } else {
+        return year === currentYear;
+      }
+    });
+
+    if (reportData.length === 0) {
+      toast.error(`No logs found for this ${period}`);
+      return;
+    }
+
+    // Generate CSV
+    const headers = ["Employee ID", "Name", "Date", "Check-In", "Check-Out", "Branch", "Location (Coords)", "Status"];
+    const rows = reportData.map(r => [
+      `"${r.employeeId}"`,
+      `"${r.employee}"`,
+      `"${r.date}"`,
+      `"${r.checkInTime || r.time || "N/A"}"`,
+      `"${r.checkOutTime || "Ongoing"}"`,
+      `"${r.geofence || "Main Branch"}"`,
+      `"${r.location}"`,
+      `"${r.status}"`
+    ]);
+
+    const csvContent = headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Attendance_Report_${period}_${indiaTime.toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(`${period.charAt(0).toUpperCase() + period.slice(1)}ly report downloaded successfully`);
   };
 
   const filtered = attendanceData.filter(r => {
@@ -251,13 +304,31 @@ const Attendance = () => {
           </div>
         )}
 
-        {/* Filters */}
+        {/* Filters & Reports */}
         {isAdmin && (
-          <div className="flex gap-3 mb-4 flex-wrap">
-            <div className="flex-1 relative min-w-[200px]">
+          <div className="flex gap-3 mb-6 flex-wrap items-center">
+            <div className="flex-1 relative min-w-[250px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search employee..."
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search employee by name or ID..."
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+            </div>
+            <div className="flex gap-2">
+              <motion.button 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => downloadReport('month')}
+                className="px-4 py-2.5 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 text-xs font-bold flex items-center gap-2 transition-all text-primary"
+              >
+                <Download className="w-4 h-4" /> Monthly Report
+              </motion.button>
+              <motion.button 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => downloadReport('year')}
+                className="px-4 py-2.5 rounded-xl border border-secondary/20 bg-secondary/5 hover:bg-secondary/10 text-xs font-bold flex items-center gap-2 transition-all text-secondary"
+              >
+                <FileText className="w-4 h-4" /> Yearly Report
+              </motion.button>
             </div>
           </div>
         )}
@@ -269,8 +340,9 @@ const Attendance = () => {
              </div>
         ) : isAdmin && (
           <div className="space-y-3">
-            <div className="hidden md:grid grid-cols-6 gap-4 px-6 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            <div className="hidden md:grid grid-cols-7 gap-4 px-6 py-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
               <div className="col-span-2">Employee</div>
+              <div>Branch</div>
               <div>Date</div>
               <div>Check-in</div>
               <div>Check-out</div>
@@ -278,7 +350,7 @@ const Attendance = () => {
             </div>
             {filtered.map((r, i) => (
               <motion.div key={r.employeeId + r.timestamp} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}
-                className="glass-card-hover p-4 flex flex-col md:grid md:grid-cols-6 items-center gap-4">
+                className="glass-card-hover p-4 flex flex-col md:grid md:grid-cols-7 items-center gap-4">
                 <div className="col-span-2 flex items-center gap-4 w-full md:w-auto">
                   <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0">
                     {r.avatar}
@@ -286,6 +358,14 @@ const Attendance = () => {
                   <div className="min-w-0">
                     <h3 className="font-medium text-sm">{r.employee}</h3>
                     <p className="text-[10px] text-muted-foreground truncate">{r.location}</p>
+                  </div>
+                </div>
+
+                <div className="flex md:block items-center justify-between w-full md:w-auto">
+                  <span className="md:hidden text-xs text-muted-foreground">Branch:</span>
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="w-3 h-3 text-primary" />
+                    <p className="text-sm font-bold text-primary truncate max-w-[100px]">{r.geofence || "Main Branch"}</p>
                   </div>
                 </div>
 
