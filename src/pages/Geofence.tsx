@@ -288,14 +288,21 @@ const Geofence = () => {
                   
                   <div className="flex gap-4">
                     <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" checked={form.type === 'branch'} onChange={() => setForm(f => ({ ...f, type: 'branch', eventName: 'Main Branch', employeeId: 'All' }))} className="accent-primary" />
-                      <span className="text-sm font-medium">Main Branch</span>
+                      <input type="radio" checked={form.type === 'branch'} onChange={() => setForm(f => ({ ...f, type: 'branch', eventName: f.eventName || 'Main Branch', employeeId: 'All' }))} className="accent-primary" />
+                      <span className="text-sm font-medium">Branch</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input type="radio" checked={form.type === 'event'} onChange={() => setForm(f => ({ ...f, type: 'event', eventName: '', employeeId: '' }))} className="accent-primary" />
                       <span className="text-sm font-medium">Specific Event</span>
                     </label>
                   </div>
+
+                  {form.type === "branch" && (
+                    <div>
+                      <label className="text-xs font-semibold text-muted-foreground mb-1 block uppercase tracking-wider">Branch Name</label>
+                      <input value={form.eventName} onChange={e => setForm(f => ({ ...f, eventName: e.target.value }))} placeholder="e.g. Main Branch, Erode HQ" className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                    </div>
+                  )}
 
                   {form.type === "event" && (
                     <>
