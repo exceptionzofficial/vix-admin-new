@@ -310,6 +310,47 @@ const Geofence = () => {
                     </>
                   )}
 
+                  {/* Auto-fetch Location */}
+                  <div className="p-3 rounded-xl border border-dashed border-primary/30 bg-primary/5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!navigator.geolocation) {
+                          toast.error("Geolocation is not supported by your browser");
+                          return;
+                        }
+                        toast.loading("Fetching your location...", { id: "geo" });
+                        navigator.geolocation.getCurrentPosition(
+                          (position) => {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            setForm(f => ({ ...f, lat, lng }));
+                            setMapCenter({ lat, lng });
+                            toast.success(`Location detected: ${lat.toFixed(5)}, ${lng.toFixed(5)}`, { id: "geo" });
+                          },
+                          (error) => {
+                            console.error("Geolocation error:", error);
+                            toast.error("Failed to fetch location. Please allow location access.", { id: "geo" });
+                          },
+                          { enableHighAccuracy: true, timeout: 10000 }
+                        );
+                      }}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-sm font-bold transition-all"
+                    >
+                      <Navigation className="w-4 h-4" />
+                      Use My Current Location
+                    </button>
+                    <p className="text-[10px] text-muted-foreground text-center mt-2">Auto-detects your browser's GPS coordinates</p>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-px bg-border/50"></div>
+                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">or enter manually</span>
+                    <div className="flex-1 h-px bg-border/50"></div>
+                  </div>
+
+                  {/* Manual coordinates */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-xs font-semibold text-muted-foreground mb-1 block uppercase tracking-wider">Latitude</label>
