@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Plus, MapPin, Phone, Mail, Filter, X, Lock, Fingerprint, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Plus, MapPin, Phone, Mail, Filter, X, Lock, Fingerprint, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Edit, Trash2 } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, startOfDay, subMonths, addMonths } from "date-fns";
 import DashboardLayout from "../components/DashboardLayout";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ const Employees = () => {
   const [viewingEmployee, setViewingEmployee] = useState<any>(null);
   const [employeeLogs, setEmployeeLogs] = useState<any[]>([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [isEditing, setIsEditing] = useState(false);
   
   const [form, setForm] = useState({ 
     employeeId: "", 
@@ -60,6 +61,36 @@ const Employees = () => {
     fetchLogs(emp.employeeId);
   };
 
+  const handleEdit = (emp: any) => {
+    setForm({
+      employeeId: emp.employeeId,
+      pin: emp.pin || "",
+      name: emp.name || "",
+      email: emp.email || "",
+      dept: emp.department || emp.dept || "",
+      designation: emp.role || emp.designation || "",
+      location: emp.location || "",
+      phone: emp.phone || ""
+    });
+    setIsEditing(true);
+    setViewingEmployee(null);
+    setShowModal(true);
+  };
+
+  const handleDelete = async (employeeId: string) => {
+    if (window.confirm("Are you sure you want to delete this employee? This action cannot be undone.")) {
+      try {
+        await axios.delete(`${API_BASE_URL}/employee/delete/${employeeId}`);
+        toast.success("Employee deleted successfully");
+        setViewingEmployee(null);
+        fetchEmployees();
+      } catch (error) {
+        console.error("Error deleting employee:", error);
+        toast.error("Failed to delete employee");
+      }
+    }
+  };
+
   const filtered = employees.filter(e =>
     (e.name || "").toLowerCase().includes(search.toLowerCase()) ||
     (e.department || e.dept || "").toLowerCase().includes(search.toLowerCase()) ||
@@ -83,14 +114,21 @@ const Employees = () => {
         phone: form.phone || "N/A"
       };
 
-      await axios.post(`${API_BASE_URL}/employee/add`, payload);
-      toast.success(`${form.name} added successfully!`);
+      if (isEditing) {
+        await axios.put(`${API_BASE_URL}/employee/update/${form.employeeId}`, payload);
+        toast.success(`${form.name} updated successfully!`);
+      } else {
+        await axios.post(`${API_BASE_URL}/employee/add`, payload);
+        toast.success(`${form.name} added successfully!`);
+      }
+      
       setShowModal(false);
+      setIsEditing(false);
       setForm({ employeeId: "", pin: "", name: "", email: "", dept: "", designation: "", location: "", phone: "" });
       fetchEmployees();
     } catch (error) {
-      console.error("Error adding employee:", error);
-      toast.error("Failed to add employee. ID might already exist.");
+      console.error("Error saving employee:", error);
+      toast.error(isEditing ? "Failed to update employee" : "Failed to add employee. ID might already exist.");
     }
   };
 
@@ -102,7 +140,7 @@ const Employees = () => {
             <h1 className="text-2xl font-montserrat font-bold">Employees</h1>
             <p className="text-muted-foreground text-sm">{employees.length} team members</p>
           </div>
-          <button onClick={() => setShowModal(true)} className="btn-gradient px-5 py-2.5 flex items-center gap-2 text-sm">
+          <button onClick={() => { setIsEditing(false); setForm({ employeeId: "", pin: "", name: "", email: "", dept: "", designation: "", location: "", phone: "" }); setShowModal(true); }} className="btn-gradient px-5 py-2.5 flex items-center gap-2 text-sm">
             <Plus className="w-4 h-4" /> Add Employee
           </button>
         </div>
@@ -160,14 +198,14 @@ const Employees = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowModal(false)}>
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="glass-card p-4 sm:p-6 w-full max-w-lg" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-montserrat font-bold">Add Employee</h2>
-                <button onClick={() => setShowModal(false)} className="p-2 rounded-xl hover:bg-muted/50"><X className="w-5 h-5" /></button>
+                <h2 className="text-xl font-montserrat font-bold">{isEditing ? "Edit Employee" : "Add Employee"}</h2>
+                <button onClick={() => { setShowModal(false); setIsEditing(false); }} className="p-2 rounded-xl hover:bg-muted/50"><X className="w-5 h-5" /></button>
               </div>
               <div className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm text-muted-foreground mb-1 block flex items-center gap-1"><Fingerprint size={14} /> Employee ID</label>
-                    <input value={form.employeeId} onChange={e => setForm(f => ({ ...f, employeeId: e.target.value }))} placeholder="e.g. EMP001" className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                    <input disabled={isEditing} value={form.employeeId} onChange={e => setForm(f => ({ ...f, employeeId: e.target.value }))} placeholder="e.g. EMP001" className={`w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 ${isEditing ? 'opacity-50 cursor-not-allowed' : ''}`} />
                   </div>
                   <div>
                     <label className="text-sm text-muted-foreground mb-1 block flex items-center gap-1"><Lock size={14} /> Security PIN</label>
@@ -211,7 +249,7 @@ const Employees = () => {
                   <div><label className="text-sm text-muted-foreground mb-1 block">Phone</label>
                     <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+91 98765 43210" className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" /></div>
                 </div>
-                <button onClick={handleAdd} className="w-full py-3 btn-gradient rounded-xl text-sm font-semibold sticky bottom-0">Add Employee & Set Security</button>
+                <button onClick={handleAdd} className="w-full py-3 btn-gradient rounded-xl text-sm font-semibold sticky bottom-0">{isEditing ? "Update Employee" : "Add Employee & Set Security"}</button>
               </div>
             </motion.div>
           </motion.div>
@@ -237,6 +275,15 @@ const Employees = () => {
                   </div>
                   <h2 className="text-xl font-bold text-center">{viewingEmployee.name}</h2>
                   <p className="text-sm text-primary font-medium">{viewingEmployee.role || viewingEmployee.designation}</p>
+                  
+                  <div className="flex gap-2 mt-4">
+                    <button onClick={() => handleEdit(viewingEmployee)} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-bold hover:bg-primary/20 transition-all">
+                      <Edit size={14} /> Edit
+                    </button>
+                    <button onClick={() => handleDelete(viewingEmployee.employeeId)} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive text-xs font-bold hover:bg-destructive/20 transition-all">
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
