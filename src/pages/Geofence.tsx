@@ -88,7 +88,7 @@ const Geofence = () => {
   
     const payload = {
       employeeId: form.type === "branch" ? "All" : form.employeeId,
-      eventName: form.type === "branch" ? "Main Branch" : form.eventName,
+      eventName: form.eventName || (form.type === "branch" ? "Main Branch" : ""),
       location: { latitude: Number(form.lat), longitude: Number(form.lng) },
       radius: Number(form.radius),
       startTime: "09:00 AM", // default or can be added to form
