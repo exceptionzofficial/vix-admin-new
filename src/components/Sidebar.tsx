@@ -13,6 +13,7 @@ import crayonzLogo from "@/assets/crayonz-logo.png";
 const allMenuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", roles: ["admin", "manager", "employee", "vendor"], isLive: false },
   { icon: Clock, label: "Attendance", path: "/attendance", roles: ["admin", "manager", "employee"], isLive: true },
+  { icon: FileText, label: "Leaves", path: "/leaves", roles: ["admin", "manager", "employee"], isLive: true },
   { icon: IndianRupee, label: "Payroll", path: "/payroll", roles: ["admin", "manager", "employee"], isLive: false },
   { icon: Users, label: "Employees", path: "/employees", roles: ["admin", "manager"], isLive: true },
   { icon: Map, label: "Geofence", path: "/geofence", roles: ["admin", "manager"], isLive: true },
@@ -23,10 +24,7 @@ const allMenuItems = [
   { icon: DollarSign, label: "Expenses", path: "/expenses", roles: ["admin", "manager", "employee"], isLive: false },
   { icon: FileText, label: "Finance", path: "/finance", roles: ["admin", "manager"], isLive: false },
   { icon: Trophy, label: "Incentives", path: "/incentives", roles: ["admin", "manager", "employee"], isLive: false },
-  { icon: Phone, label: "Telecalling", path: "/telecalling", roles: ["admin", "manager", "employee"], isLive: false },
   { icon: MapPin, label: "Live Map", path: "/live-map", roles: ["admin", "manager"], isLive: false },
-  { icon: Car, label: "Parking", path: "/parking", roles: ["admin", "manager"], isLive: false },
-  { icon: MessageSquare, label: "Chat", path: "/chat", roles: ["admin", "manager", "employee", "vendor"], isLive: false },
   { icon: Settings, label: "Settings", path: "/settings", roles: ["admin"], isLive: false },
 ];
 

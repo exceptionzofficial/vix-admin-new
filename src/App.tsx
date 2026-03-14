@@ -19,6 +19,7 @@ import Chat from "./pages/Chat";
 import Finance from "./pages/Finance";
 import SettingsPage from "./pages/Settings";
 import Attendance from "./pages/Attendance";
+import Leaves from "./pages/Leaves";
 import Payroll from "./pages/Payroll";
 import Incentives from "./pages/Incentives";
 import UpcomingProjects from "./pages/UpcomingProjects";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<ComingSoon />} />
             <Route path="/attendance" element={<Attendance />} />
+            <Route path="/leaves" element={<Leaves />} />
             <Route path="/employees" element={<Employees />} />
             <Route path="/geofence" element={<Geofence />} />
             
@@ -49,13 +51,10 @@ const App = () => (
             <Route path="/vendors" element={<ComingSoon />} />
             <Route path="/tasks" element={<ComingSoon />} />
             <Route path="/projects" element={<ComingSoon />} />
-            <Route path="/telecalling" element={<ComingSoon />} />
             <Route path="/live-map" element={<ComingSoon />} />
-            <Route path="/parking" element={<ComingSoon />} />
             <Route path="/expenses" element={<ComingSoon />} />
             <Route path="/finance" element={<ComingSoon />} />
             <Route path="/incentives" element={<ComingSoon />} />
-            <Route path="/chat" element={<ComingSoon />} />
             <Route path="/settings" element={<ComingSoon />} />
             <Route path="/employee-portal" element={<EmployeePortal />} />
             <Route path="*" element={<NotFound />} />
