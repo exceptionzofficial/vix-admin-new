@@ -39,7 +39,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Navigate to="/attendance" replace />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<ComingSoon />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/leaves" element={<Leaves />} />
             <Route path="/employees" element={<Employees />} />
@@ -49,10 +49,10 @@ const App = () => (
             <Route path="/payroll" element={<ComingSoon />} />
             <Route path="/events" element={<ComingSoon />} />
             <Route path="/vendors" element={<ComingSoon />} />
-            <Route path="/tasks" element={<ComingSoon />} />
+            <Route path="/tasks" element={<Tasks />} />
             <Route path="/projects" element={<ComingSoon />} />
             <Route path="/live-map" element={<ComingSoon />} />
-            <Route path="/expenses" element={<ComingSoon />} />
+            <Route path="/expenses" element={<Expenses />} />
             <Route path="/finance" element={<ComingSoon />} />
             <Route path="/incentives" element={<ComingSoon />} />
             <Route path="/settings" element={<ComingSoon />} />
