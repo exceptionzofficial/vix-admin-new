@@ -41,12 +41,13 @@ const Tasks = () => {
     endTime: "",
     status: "Pending",
     remarks: "",
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toISOString().split('T')[0],
+    employeeId: ""
   });
 
   const fetchTasks = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/tasks/all");
+      const res = await axios.get(`${API_CONFIG.API_BASE}/tasks/all`);
       setTasks(res.data);
     } catch (err) {
       toast.error("Failed to fetch tasks");
@@ -99,6 +100,7 @@ const Tasks = () => {
     setForm(f => ({
       ...f,
       employeeName: emp.name,
+      employeeId: emp.employeeId || emp._id || "",
       role: emp.designation || emp.role || "",
       department: emp.department || emp.dept || "",
     }));
@@ -110,7 +112,7 @@ const Tasks = () => {
   const handleCreate = async () => {
     if (!form.taskName || !form.employeeName) return toast.error("Task Name and Employee Name are required");
     try {
-      await axios.post("http://localhost:5000/api/tasks/submit", form);
+      await axios.post(`${API_CONFIG.API_BASE}/tasks/submit`, form);
       toast.success("Task created successfully!");
       setShowModal(false);
       fetchTasks();
@@ -119,7 +121,8 @@ const Tasks = () => {
         employeeName: "", department: "", role: "", eventName: "", taskName: "",
         description: "", location: "", sourceFile: "Drive", category: "Poster",
         outputType: "Landscape", startTime: "", endTime: "", status: "Pending", remarks: "",
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0],
+        employeeId: ""
       });
     } catch (err) {
       toast.error("Failed to create task");
