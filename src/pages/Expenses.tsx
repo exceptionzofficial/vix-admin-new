@@ -50,13 +50,26 @@ const Expenses = () => {
     }
   };
 
+  // Grouping logic
+  const groupExpenses = (data: any[]) => {
+    const groups: Record<string, any[]> = {};
+    data.forEach(item => {
+      const key = `${item.employeeId}_${item.expenseDate}`;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(item);
+    });
+    return Object.values(groups).sort((a, b) => new Date(b[0].expenseDate).getTime() - new Date(a[0].expenseDate).getTime());
+  };
+
+  const expenseGroups = groupExpenses(filtered);
+
   return (
     <DashboardLayout>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-montserrat font-bold">Expense Management</h1>
-            <p className="text-muted-foreground text-sm">Review, verify and approve claims</p>
+            <p className="text-muted-foreground text-sm">Review, verify and approve claims (Grouped by Date)</p>
           </div>
         </div>
 
@@ -72,53 +85,80 @@ const Expenses = () => {
         {loading ? (
              <div className="text-center py-20 text-muted-foreground italic">Fetching records...</div>
         ) : (
-            <div className="space-y-4">
-            {filtered.map((exp, i) => (
-              <motion.div key={exp.expenseId} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
-                className="glass-card-hover p-6 flex flex-col md:flex-row items-start md:items-center gap-6">
-                
-                <div className="p-3 rounded-2xl bg-primary/10">
-                    <Receipt className="w-6 h-6 text-primary" />
-                </div>
+            <div className="space-y-6">
+            {expenseGroups.map((group, groupIndex) => {
+              const head = group[0];
+              const total = group.reduce((sum, i) => sum + i.amount, 0);
+              const groupStatus = group[0].status;
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-lg">{exp.category}</h3>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider ${statusColors[exp.status]}`}>
-                        {exp.status}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground flex items-center gap-3">
-                    <span className="flex items-center gap-1 font-medium text-foreground/80"><Clock className="w-3 h-3" /> {exp.expenseDate}</span>
-                    <span className="flex items-center gap-1"><UserCheck className="w-3 h-3" /> {exp.employeeName}</span>
-                  </p>
-                  {exp.remarks && <p className="text-xs text-muted-foreground mt-2 italic px-2 border-l-2 border-primary/30">"{exp.remarks}"</p>}
-                </div>
-
-                <div className="flex items-center gap-8 w-full md:w-auto">
+              return (
+                <motion.div key={groupIndex} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: groupIndex * 0.05 }}
+                  className="glass-card-hover p-6 border border-border/40 relative">
+                  
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-border/30">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-2xl bg-primary/10">
+                            <Receipt className="w-6 h-6 text-primary" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg">{head.employeeName}</h3>
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                                <span className="flex items-center gap-1 font-medium text-foreground/80 bg-muted/50 px-2 py-0.5 rounded-md">
+                                    <Clock className="w-3 h-3" /> {head.expenseDate}
+                                </span>
+                                <span className="uppercase tracking-tighter text-[9px] font-bold">{head.employeeId}</span>
+                            </div>
+                        </div>
+                    </div>
                     <div className="text-right">
-                        <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Amount</p>
-                        <p className="font-montserrat font-bold text-xl gradient-text">₹{exp.amount}</p>
+                        <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest mb-1">Total Group Amount</p>
+                        <p className="font-montserrat font-bold text-2xl gradient-text">₹{total.toFixed(2)}</p>
                     </div>
+                  </div>
 
-                    <div className="flex gap-2">
-                        {exp.status === "Submitted" && (
-                            <>
-                                <button onClick={() => handleAction(exp.expenseId, 'verify', 'Verified')} className="action-btn text-xs bg-secondary/10 text-secondary hover:bg-secondary/20">Verify</button>
-                                <button onClick={() => handleAction(exp.expenseId, 'verify', 'Rejected')} className="action-btn text-xs bg-destructive/10 text-destructive hover:bg-destructive/20">Reject</button>
-                            </>
-                        )}
-                        {exp.status === "Verified" && (
-                            <>
-                                <button onClick={() => handleAction(exp.expenseId, 'approve', 'Approved')} className="action-btn text-xs bg-green-500/10 text-green-400 hover:bg-green-500/20">Approve</button>
-                                <button onClick={() => handleAction(exp.expenseId, 'approve', 'Rejected')} className="action-btn text-xs bg-destructive/10 text-destructive hover:bg-destructive/20">Reject</button>
-                            </>
-                        )}
-                        {exp.status === "Approved" && <div className="p-2 bg-green-500/20 rounded-xl"><ShieldCheck className="w-5 h-5 text-green-400" /></div>}
-                    </div>
-                </div>
-              </motion.div>
-            ))}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 mb-6">
+                    {group.map((item: any) => (
+                      <div key={item.expenseId} className="bg-muted/30 p-4 rounded-2xl border border-divider/5 flex justify-between items-center group relative">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-bold text-foreground/80 px-2 py-0.5 rounded bg-primary/5">{item.category}</span>
+                            <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold uppercase ${statusColors[item.status]}`}>
+                                {item.status === 'Submitted' ? 'New Bill' : item.status}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground italic line-clamp-1">"{item.remarks || 'No remarks'}"</p>
+                        </div>
+                        <p className="font-bold text-sm ml-4">₹{item.amount}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-2 justify-end">
+                      {groupStatus === "Submitted" && (
+                          <>
+                              <button onClick={() => group.forEach((it: any) => handleAction(it.expenseId, 'verify', 'Verified'))} 
+                                className="action-btn text-xs bg-secondary/10 text-secondary hover:bg-secondary/20 h-10 px-6">Verify All</button>
+                              <button onClick={() => group.forEach((it: any) => handleAction(it.expenseId, 'verify', 'Rejected'))} 
+                                className="action-btn text-xs bg-destructive/10 text-destructive hover:bg-destructive/20 h-10 px-6">Reject All</button>
+                          </>
+                      )}
+                      {groupStatus === "Verified" && (
+                          <>
+                              <button onClick={() => group.forEach((it: any) => handleAction(it.expenseId, 'approve', 'Approved'))} 
+                                className="action-btn text-xs bg-green-500/10 text-green-400 hover:bg-green-500/20 h-10 px-6">Approve All</button>
+                              <button onClick={() => group.forEach((it: any) => handleAction(it.expenseId, 'approve', 'Rejected'))} 
+                                className="action-btn text-xs bg-destructive/10 text-destructive hover:bg-destructive/20 h-10 px-6">Reject All</button>
+                          </>
+                      )}
+                      {groupStatus === "Approved" && (
+                        <div className="flex items-center gap-2 text-green-400 font-bold text-xs bg-green-500/10 px-4 py-2 rounded-xl border border-green-500/20">
+                            <ShieldCheck className="w-4 h-4" /> BATCH APPROVED
+                        </div>
+                      )}
+                  </div>
+                </motion.div>
+              );
+            })}
             </div>
         )}
       </motion.div>

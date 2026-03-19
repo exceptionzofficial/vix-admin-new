@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
     Calendar, CheckCircle2, Clock, XCircle, Filter, 
     Search, User, MessageCircle, MoreVertical,
-    FileText, CalendarDays, AlertCircle
+    FileText, CalendarDays, AlertCircle, Edit2, Save
 } from "lucide-react";
 import DashboardLayout from "../components/DashboardLayout";
 import { toast } from "sonner";
@@ -31,7 +31,7 @@ const Leaves = () => {
             setRequests(res.data);
         } catch (error) {
             console.error("Error fetching requests:", error);
-            toast.error("Failed to load request applications");
+            toast.error("Failed to load requests");
         } finally {
             setLoading(false);
         }
@@ -72,8 +72,8 @@ const Leaves = () => {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-montserrat font-bold">Leave & Permission Requests</h1>
-                        <p className="text-muted-foreground text-sm">Review and manage employee leave applications.</p>
+                        <h1 className="text-2xl font-montserrat font-bold">Leave Management</h1>
+                        <p className="text-muted-foreground text-sm">Review leave and permission applications.</p>
                     </div>
                 </div>
 
@@ -83,7 +83,7 @@ const Leaves = () => {
                         <input 
                             value={search} 
                             onChange={(e) => setSearch(e.target.value)} 
-                            placeholder="Search by employee name or ID..."
+                            placeholder="Search requests..."
                             className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" 
                         />
                     </div>
