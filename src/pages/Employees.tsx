@@ -31,7 +31,13 @@ const Employees = () => {
     dept: "", 
     designation: "", 
     location: "", 
-    phone: "" 
+    phone: "",
+    familyPhoneNumber: "",
+    familyRelationship: "",
+    aadharNumber: "",
+    dob: "",
+    salary: "",
+    joiningDate: ""
   });
 
   useEffect(() => {
@@ -74,7 +80,13 @@ const Employees = () => {
       dept: emp.department || emp.dept || "",
       designation: emp.role || emp.designation || "",
       location: emp.location || "",
-      phone: emp.phone || ""
+      phone: emp.phone || "",
+      familyPhoneNumber: emp.familyPhoneNumber || "",
+      familyRelationship: emp.familyRelationship || "",
+      aadharNumber: emp.aadharNumber || "",
+      dob: emp.dob || "",
+      salary: emp.salary || "",
+      joiningDate: emp.joiningDate || ""
     });
     setShowOtherDept(false);
     setIsEditing(true);
@@ -116,7 +128,13 @@ const Employees = () => {
         department: form.dept || "General",
         role: form.designation || "Employee",
         location: form.location || "Erode",
-        phone: form.phone || "N/A"
+        phone: form.phone || "N/A",
+        familyPhoneNumber: form.familyPhoneNumber,
+        familyRelationship: form.familyRelationship,
+        aadharNumber: form.aadharNumber,
+        dob: form.dob,
+        salary: form.salary,
+        joiningDate: form.joiningDate
       };
 
       if (isEditing) {
@@ -130,7 +148,10 @@ const Employees = () => {
       setShowModal(false);
       setIsEditing(false);
       setShowOtherDept(false);
-      setForm({ employeeId: "", pin: "", name: "", email: "", dept: "", designation: "", location: "", phone: "" });
+      setForm({ 
+        employeeId: "", pin: "", name: "", email: "", dept: "", designation: "", location: "", phone: "",
+        familyPhoneNumber: "", familyRelationship: "", aadharNumber: "", dob: "", salary: "", joiningDate: ""
+      });
       fetchEmployees();
     } catch (error) {
       console.error("Error saving employee:", error);
@@ -146,7 +167,15 @@ const Employees = () => {
             <h1 className="text-2xl font-montserrat font-bold">Employees</h1>
             <p className="text-muted-foreground text-sm">{employees.length} team members</p>
           </div>
-          <button onClick={() => { setIsEditing(false); setShowOtherDept(false); setForm({ employeeId: "", pin: "", name: "", email: "", dept: "", designation: "", location: "", phone: "" }); setShowModal(true); }} className="btn-gradient px-5 py-2.5 flex items-center gap-2 text-sm">
+          <button onClick={() => { 
+            setIsEditing(false); 
+            setShowOtherDept(false); 
+            setForm({ 
+              employeeId: "", pin: "", name: "", email: "", dept: "", designation: "", location: "", phone: "",
+              familyPhoneNumber: "", familyRelationship: "", aadharNumber: "", dob: "", salary: "", joiningDate: ""
+            }); 
+            setShowModal(true); 
+          }} className="btn-gradient px-5 py-2.5 flex items-center gap-2 text-sm">
             <Plus className="w-4 h-4" /> Add Employee
           </button>
         </div>
@@ -262,10 +291,47 @@ const Employees = () => {
                     <input value={form.designation} onChange={e => setForm(f => ({ ...f, designation: e.target.value }))} placeholder="Field Executive" className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" /></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><label className="text-sm text-muted-foreground mb-1 block">Location</label>
+                  <div><label className="text-sm text-muted-foreground mb-1 block uppercase text-[10px] font-bold tracking-wider">Location</label>
                     <input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Erode" className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" /></div>
-                  <div><label className="text-sm text-muted-foreground mb-1 block">Phone</label>
+                  <div><label className="text-sm text-muted-foreground mb-1 block uppercase text-[10px] font-bold tracking-wider">Phone</label>
                     <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+91 98765 43210" className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" /></div>
+                </div>
+
+                <div className="border-t border-border/30 pt-4 mt-2">
+                  <p className="text-[10px] uppercase font-black text-primary tracking-widest mb-4">Personal & Admin Details</p>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="text-sm text-muted-foreground mb-1 block uppercase text-[10px] font-bold tracking-wider">Aadhar Number</label>
+                      <input value={form.aadharNumber} onChange={e => setForm(f => ({ ...f, aadharNumber: e.target.value }))} placeholder="12-digit number" className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                    </div>
+                    <div>
+                      <label className="text-sm text-muted-foreground mb-1 block uppercase text-[10px] font-bold tracking-wider">Date of Birth</label>
+                      <input type="date" value={form.dob} onChange={e => setForm(f => ({ ...f, dob: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="text-sm text-muted-foreground mb-1 block uppercase text-[10px] font-bold tracking-wider">Family Contact No.</label>
+                      <input value={form.familyPhoneNumber} onChange={e => setForm(f => ({ ...f, familyPhoneNumber: e.target.value }))} placeholder="Emergency number" className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                    </div>
+                    <div>
+                      <label className="text-sm text-muted-foreground mb-1 block uppercase text-[10px] font-bold tracking-wider">Relationship</label>
+                      <input value={form.familyRelationship} onChange={e => setForm(f => ({ ...f, familyRelationship: e.target.value }))} placeholder="e.g. Father, Spouse" className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm text-muted-foreground mb-1 block uppercase text-[10px] font-bold tracking-wider">Salary (Annual/Monthly)</label>
+                      <input value={form.salary} onChange={e => setForm(f => ({ ...f, salary: e.target.value }))} placeholder="e.g. 25,000" className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                    </div>
+                    <div>
+                      <label className="text-sm text-muted-foreground mb-1 block uppercase text-[10px] font-bold tracking-wider">Date Of Joining</label>
+                      <input type="date" value={form.joiningDate} onChange={e => setForm(f => ({ ...f, joiningDate: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                    </div>
+                  </div>
                 </div>
                 <button onClick={handleAdd} className="w-full py-3 btn-gradient rounded-xl text-sm font-semibold sticky bottom-0">{isEditing ? "Update Employee" : "Add Employee & Set Security"}</button>
               </div>
@@ -314,6 +380,7 @@ const Employees = () => {
                   <DetailItem icon={<Fingerprint size={14}/>} label="Employee ID" value={viewingEmployee.employeeId} />
                   <DetailItem icon={<Mail size={14}/>} label="Email Address" value={viewingEmployee.email} />
                   <DetailItem icon={<Phone size={14}/>} label="Phone Number" value={viewingEmployee.phone} />
+                  <DetailItem icon={<CalendarIcon size={14}/>} label="Date of Birth" value={viewingEmployee.dob} />
                   <DetailItem icon={<MapPin size={14}/>} label="Default Location" value={viewingEmployee.location} />
                   <DetailItem icon={<Filter size={14}/>} label="Department" value={viewingEmployee.department || viewingEmployee.dept} />
                 </div>
@@ -334,8 +401,8 @@ const Employees = () => {
                 </div>
 
                 <div className="grid grid-cols-7 gap-1 text-center mb-2">
-                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
-                    <div key={d} className="text-[10px] font-bold text-muted-foreground py-1">{d}</div>
+                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, idx) => (
+                    <div key={`${d}-${idx}`} className="text-[10px] font-bold text-muted-foreground py-1">{d}</div>
                   ))}
                 </div>
 
