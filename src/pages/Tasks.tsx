@@ -28,21 +28,26 @@ const Tasks = () => {
   
   const [form, setForm] = useState({
     employeeName: "",
+    employeeId: "",
     department: "",
     role: "",
     eventName: "",
-    taskName: "",
-    description: "",
-    location: "",
-    sourceFile: "Drive",
-    category: "Poster",
-    outputType: "Landscape",
-    startTime: "",
-    endTime: "",
-    status: "Pending",
-    remarks: "",
     date: new Date().toISOString().split('T')[0],
-    employeeId: ""
+    location: "Office",
+    tasks: [
+      {
+        sNo: 1,
+        taskName: "",
+        description: "",
+        sourceFile: "Drive",
+        category: "Poster",
+        outputType: "Landscape",
+        startTime: "",
+        endTime: "",
+        status: "Pending",
+        remarks: ""
+      }
+    ]
   });
 
   const fetchTasks = async () => {
@@ -110,23 +115,71 @@ const Tasks = () => {
   const filtered = filter === "All" ? tasks : tasks.filter(t => t.status === filter);
 
   const handleCreate = async () => {
-    if (!form.taskName || !form.employeeName) return toast.error("Task Name and Employee Name are required");
+    if (!form.employeeName || !form.eventName) return toast.error("Employee Name and Project Name are required");
+    if (form.tasks.some(t => !t.taskName)) return toast.error("Task Name is required for all rows");
+
     try {
-      await axios.post(`${API_CONFIG.API_BASE}/tasks/submit`, form);
-      toast.success("Task created successfully!");
+      const payload = form.tasks.map(t => ({
+        ...t,
+        employeeName: form.employeeName,
+        employeeId: form.employeeId,
+        department: form.department,
+        role: form.role,
+        eventName: form.eventName,
+        date: form.date,
+        location: form.location
+      }));
+
+      await axios.post(`${API_CONFIG.API_BASE}/tasks/submit`, payload);
+      toast.success(`${payload.length} tasks created successfully!`);
       setShowModal(false);
       fetchTasks();
+      
       // Reset form
       setForm({
-        employeeName: "", department: "", role: "", eventName: "", taskName: "",
-        description: "", location: "", sourceFile: "Drive", category: "Poster",
-        outputType: "Landscape", startTime: "", endTime: "", status: "Pending", remarks: "",
-        date: new Date().toISOString().split('T')[0],
-        employeeId: ""
+        employeeName: "", employeeId: "", department: "", role: "", eventName: "",
+        date: new Date().toISOString().split('T')[0], location: "Office",
+        tasks: [{
+          sNo: 1, taskName: "", description: "", sourceFile: "Drive", category: "Poster",
+          outputType: "Landscape", startTime: "", endTime: "", status: "Pending", remarks: ""
+        }]
       });
     } catch (err) {
-      toast.error("Failed to create task");
+      toast.error("Failed to create tasks");
     }
+  };
+
+  const addTaskRow = () => {
+    setForm(f => ({
+      ...f,
+      tasks: [
+        ...f.tasks,
+        {
+          sNo: f.tasks.length + 1,
+          taskName: "",
+          description: "",
+          sourceFile: "Drive",
+          category: "Poster",
+          outputType: "Landscape",
+          startTime: "",
+          endTime: "",
+          status: "Pending",
+          remarks: ""
+        }
+      ]
+    }));
+  };
+
+  const removeTaskRow = (index: number) => {
+    if (form.tasks.length === 1) return;
+    const newTasks = form.tasks.filter((_, i) => i !== index).map((t, i) => ({ ...t, sNo: i + 1 }));
+    setForm(f => ({ ...f, tasks: newTasks }));
+  };
+
+  const updateTaskRow = (index: number, field: string, value: any) => {
+    const newTasks = [...form.tasks];
+    newTasks[index] = { ...newTasks[index], [field]: value };
+    setForm(f => ({ ...f, tasks: newTasks }));
   };
 
   return (
@@ -169,7 +222,10 @@ const Tasks = () => {
                             <Briefcase className={`w-5 h-5 ${task.status === "Completed" ? "text-green-400" : "text-primary"}`} />
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg">{task.taskName}</h3>
+                            <div className="flex items-center gap-2">
+                                {task.sNo && <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded font-bold">#{task.sNo}</span>}
+                                <h3 className="font-bold text-lg">{task.taskName}</h3>
+                            </div>
                             <p className="text-xs text-primary font-medium tracking-wide">{task.eventName || "General Project"}</p>
                         </div>
                     </div>
@@ -221,64 +277,113 @@ const Tasks = () => {
               <div className="mb-8">
                 <h2 className="text-2xl font-montserrat font-bold mb-1">New Task Entry</h2>
                 <p className="text-muted-foreground text-sm">Fill in the details for the daily work log</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Left Column */}
-                <div className="space-y-5">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="relative"><label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Employee Name</label>
-                             <input value={form.employeeName} onChange={handleNameChange} onFocus={handleNameFocus} onBlur={() => setTimeout(() => setFilteredEmployees([]), 200)} className="form-input placeholder:text-muted-foreground/50 text-foreground" placeholder="Select Employee or 'All'" />
-                             {filteredEmployees.length > 0 && (
-                               <div className="absolute z-10 w-full mt-2 bg-card border border-border/50 shadow-2xl rounded-xl max-h-48 overflow-y-auto">
-                                 {filteredEmployees.map(emp => (
-                                   <div key={emp.employeeId || emp._id} className="p-3 hover:bg-muted/50 cursor-pointer border-b border-border/10 last:border-0 transition-colors" onMouseDown={() => selectEmployee(emp)}>
-                                     <p className="text-sm font-bold text-foreground">{emp.name}</p>
-                                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">{emp.designation || emp.role || "Employee"} • {emp.department || emp.dept || "General"}</p>
-                                   </div>
-                                 ))}
-                               </div>
-                             )}
+              </div>              <div className="space-y-8 max-h-[60vh] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-border">
+                {/* Common Fields Section */}
+                <div className="bg-muted/10 p-6 rounded-2xl border border-border/30">
+                  <h3 className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-4">Common Project Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="relative">
+                      <label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Employee Name</label>
+                      <input value={form.employeeName} onChange={handleNameChange} onFocus={handleNameFocus} onBlur={() => setTimeout(() => setFilteredEmployees([]), 200)} className="form-input" placeholder="Select Employee" />
+                      {filteredEmployees.length > 0 && (
+                        <div className="absolute z-10 w-full mt-2 bg-card border border-border/50 shadow-2xl rounded-xl max-h-48 overflow-y-auto">
+                          {filteredEmployees.map(emp => (
+                            <div key={emp.employeeId || emp._id} className="p-3 hover:bg-muted/50 cursor-pointer border-b border-border/10 last:border-0" onMouseDown={() => selectEmployee(emp)}>
+                              <p className="text-sm font-bold text-foreground">{emp.name}</p>
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">{emp.designation || emp.role || "Employee"}</p>
+                            </div>
+                          ))}
                         </div>
-                        <div><label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Dept / Role</label>
-                             <input value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value, department: e.target.value }))} className="form-input placeholder:text-muted-foreground/50 text-foreground" placeholder="e.g. Editor" /></div>
+                      )}
                     </div>
-
-                    <div><label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Event / Project Name</label>
-                         <input value={form.eventName} onChange={e => setForm(f => ({ ...f, eventName: e.target.value }))} className="form-input placeholder:text-muted-foreground/50 text-foreground" placeholder="Project name" /></div>
-
-                    <div><label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Task Name</label>
-                         <input value={form.taskName} onChange={e => setForm(f => ({ ...f, taskName: e.target.value }))} className="form-input placeholder:text-muted-foreground/50 text-foreground" placeholder="Specific task" /></div>
-
-                    <div><label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Work Description</label>
-                         <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className="form-input h-24 pt-3 placeholder:text-muted-foreground/50 text-foreground resize-none" placeholder="Detailed description..." /></div>
+                    <div>
+                      <label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Event / Project Name</label>
+                      <input value={form.eventName} onChange={e => setForm(f => ({ ...f, eventName: e.target.value }))} className="form-input" placeholder="Project name" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Date</label>
+                      <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className="form-input [color-scheme:dark]" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Dept / Role</label>
+                      <input value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value, department: e.target.value }))} className="form-input" placeholder="Role" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Location</label>
+                      <input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} className="form-input" placeholder="Office / Field" />
+                    </div>
+                  </div>
                 </div>
 
-                {/* Right Column */}
-                <div className="space-y-5">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div><label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Category</label>
-                             <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className="form-input text-foreground">
-                                {CATEGORIES.map(c => <option key={c} value={c} className="bg-background">{c}</option>)}
-                             </select></div>
-                        <div><label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Location</label>
-                             <input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} className="form-input placeholder:text-muted-foreground/50 text-foreground" placeholder="Office / Field" /></div>
-                    </div>
+                {/* Task Rows Section */}
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Work Task Entries</h3>
+                    <button onClick={addTaskRow} className="text-[10px] font-bold bg-primary/10 text-primary px-3 py-1.5 rounded-lg hover:bg-primary/20 transition-all uppercase tracking-widest">
+                      + Add Task Row
+                    </button>
+                  </div>
 
-                    <div><label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Source File</label>
-                         <select value={form.sourceFile} onChange={e => setForm(f => ({ ...f, sourceFile: e.target.value }))} className="form-input text-foreground">
+                  {form.tasks.map((task, idx) => (
+                    <motion.div key={idx} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="p-6 rounded-2xl border border-border/50 bg-card relative">
+                      <div className="absolute -top-3 left-6 px-3 py-1 bg-border rounded-full">
+                        <span className="text-[10px] font-bold uppercase tracking-widest">Task S.No: {task.sNo}</span>
+                      </div>
+                      
+                      {form.tasks.length > 1 && (
+                        <button onClick={() => removeTaskRow(idx)} className="absolute top-4 right-4 text-muted-foreground hover:text-red-400 transition-colors">
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-2">
+                        <div className="lg:col-span-2">
+                          <label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Task Name</label>
+                          <input value={task.taskName} onChange={e => updateTaskRow(idx, 'taskName', e.target.value)} className="form-input" placeholder="What was done?" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Category</label>
+                          <select value={task.category} onChange={e => updateTaskRow(idx, 'category', e.target.value)} className="form-input">
+                            {CATEGORIES.map(c => <option key={c} value={c} className="bg-background">{c}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Output Type</label>
+                          <select value={task.outputType} onChange={e => updateTaskRow(idx, 'outputType', e.target.value)} className="form-input">
+                            {OUTPUT_TYPES.map(o => <option key={o} value={o} className="bg-background">{o}</option>)}
+                          </select>
+                        </div>
+                        <div className="lg:col-span-2">
+                          <label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Work Description</label>
+                          <textarea value={task.description} onChange={e => updateTaskRow(idx, 'description', e.target.value)} className="form-input h-20 pt-3 resize-none" placeholder="Details..." />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Source File</label>
+                          <select value={task.sourceFile} onChange={e => updateTaskRow(idx, 'sourceFile', e.target.value)} className="form-input">
                             {SOURCE_FILES.map(s => <option key={s} value={s} className="bg-background">{s}</option>)}
-                         </select></div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div><label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Start Time</label>
-                             <input type="time" value={form.startTime} onChange={e => setForm(f => ({ ...f, startTime: e.target.value }))} className="form-input text-foreground [color-scheme:dark]" /></div>
-                        <div><label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">End Time</label>
-                             <input type="time" value={form.endTime} onChange={e => setForm(f => ({ ...f, endTime: e.target.value }))} className="form-input text-foreground [color-scheme:dark]" /></div>
-                    </div>
-
-                    <div><label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Date</label>
-                         <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className="form-input placeholder:text-muted-foreground/50 text-foreground [color-scheme:dark]" /></div>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Status</label>
+                          <select value={task.status} onChange={e => updateTaskRow(idx, 'status', e.target.value)} className="form-input">
+                            {STATUSES.map(s => <option key={s} value={s} className="bg-background">{s}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Start Time</label>
+                          <input type="time" value={task.startTime} onChange={e => updateTaskRow(idx, 'startTime', e.target.value)} className="form-input [color-scheme:dark]" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">End Time</label>
+                          <input type="time" value={task.endTime} onChange={e => updateTaskRow(idx, 'endTime', e.target.value)} className="form-input [color-scheme:dark]" />
+                        </div>
+                        <div className="lg:col-span-2">
+                          <label className="text-[10px] font-bold text-muted-foreground mb-1.5 block uppercase tracking-widest">Remarks If any</label>
+                          <input value={task.remarks} onChange={e => updateTaskRow(idx, 'remarks', e.target.value)} className="form-input" placeholder="Any notes?" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
 

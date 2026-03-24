@@ -14,6 +14,7 @@ export const API_CONFIG = {
     EMPLOYEES: "/employee",
     ATTENDANCE: "/attendance",
     ADMIN: "/admin",
+    PERSONAL_REQUESTS: "/personal-requests",
   },
 };
 

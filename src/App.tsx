@@ -24,6 +24,7 @@ import Payroll from "./pages/Payroll";
 import Incentives from "./pages/Incentives";
 import UpcomingProjects from "./pages/UpcomingProjects";
 import EmployeePortal from "./pages/EmployeePortal";
+import PersonalRequests from "./pages/PersonalRequests";
 import ComingSoon from "./pages/ComingSoon";
 import NotFound from "./pages/NotFound";
 
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/projects" element={<ComingSoon />} />
             <Route path="/live-map" element={<ComingSoon />} />
             <Route path="/expenses" element={<Expenses />} />
+            <Route path="/personal-requests" element={<PersonalRequests />} />
             <Route path="/finance" element={<ComingSoon />} />
             <Route path="/incentives" element={<ComingSoon />} />
             <Route path="/settings" element={<ComingSoon />} />

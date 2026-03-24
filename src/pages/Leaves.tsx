@@ -133,6 +133,25 @@ const Leaves = () => {
                                     </div>
 
                                     <div className="space-y-3 flex-1">
+                                        <div className="flex flex-wrap gap-2 mb-2">
+                                            {req.leaveBalances && (
+                                                <>
+                                                    <div className="px-2 py-1 rounded bg-amber-50 border border-amber-100 flex flex-col items-center min-w-[40px]">
+                                                        <span className="text-[8px] font-bold text-amber-600 uppercase">CL</span>
+                                                        <span className="text-[10px] font-bold text-amber-900">{req.leaveBalances.CL || 0}</span>
+                                                    </div>
+                                                    <div className="px-2 py-1 rounded bg-blue-50 border border-blue-100 flex flex-col items-center min-w-[40px]">
+                                                        <span className="text-[8px] font-bold text-blue-600 uppercase">SL</span>
+                                                        <span className="text-[10px] font-bold text-blue-900">{req.leaveBalances.SL || 0}</span>
+                                                    </div>
+                                                    <div className="px-2 py-1 rounded bg-purple-50 border border-purple-100 flex flex-col items-center min-w-[42px]">
+                                                        <span className="text-[8px] font-bold text-purple-600 uppercase">EL/PL</span>
+                                                        <span className="text-[10px] font-bold text-purple-900">{req.leaveBalances['EL-PL'] || 0}</span>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+
                                         <div className="flex items-center justify-between bg-muted/30 p-2 rounded-lg">
                                             <span className="text-[10px] font-bold text-muted-foreground uppercase">Type</span>
                                             <span className="text-xs font-bold text-primary">{req.type === "Leave" ? req.leaveType : `Permission (${req.duration})`}</span>

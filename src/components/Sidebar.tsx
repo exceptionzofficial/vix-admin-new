@@ -22,6 +22,7 @@ const allMenuItems = [
   { icon: Rocket, label: "Projects", path: "/projects", roles: ["admin", "manager"], isLive: false },
   { icon: Store, label: "Vendors", path: "/vendors", roles: ["admin", "manager", "vendor"], isLive: false },
   { icon: DollarSign, label: "Expenses", path: "/expenses", roles: ["admin", "manager", "employee"], isLive: true },
+  { icon: MessageSquare, label: "Personal Requests", path: "/personal-requests", roles: ["admin", "manager"], isLive: true },
   { icon: FileText, label: "Finance", path: "/finance", roles: ["admin", "manager"], isLive: false },
   { icon: Trophy, label: "Incentives", path: "/incentives", roles: ["admin", "manager", "employee"], isLive: false },
   { icon: MapPin, label: "Live Map", path: "/live-map", roles: ["admin", "manager"], isLive: false },
